@@ -11,6 +11,7 @@ import org.testng.annotations.Listeners
 import brave.Tracing
 import brave.context.log4j2.ThreadContextCurrentTraceContext
 import brave.opentracing.BraveTracer
+import io.opentracing.tag.Tags
 import io.opentracing.util.GlobalTracer
 import zipkin2.reporter.AsyncReporter
 import zipkin2.reporter.okhttp3.OkHttpSender
@@ -79,14 +80,17 @@ class TestListener: ITestListener {
     }
 
     private fun printTestResults(result: ITestResult) {
+        val span = GlobalTracer.get().activeSpan()
         val status = when(result.status) {
             ITestResult.SUCCESS -> "SUCCESS"
-            ITestResult.FAILURE -> "FAILURE"
+            ITestResult.FAILURE -> {
+                span.setTag(Tags.ERROR.key, "test failed")
+                "FAILURE"
+            }
             ITestResult.SKIP -> "SKIP"
             else -> "UNKNOWN"
         }
 
-        val span = GlobalTracer.get().activeSpan()
         span.setTag("test.result", status)
         span.finish()
         GlobalTracer.get().scopeManager().active().close()
@@ -112,7 +116,7 @@ class TestListener: ITestListener {
         logger.info("Starting test ${result.instanceName}.${result.name}")
 
         val name = "[A-Z\\d]".toRegex().replace(result.name, { " ${it.value}" })
-        val span= GlobalTracer.get().buildSpan("${result.instanceName} - $name").withTag("type", "test").start()
+        val span= GlobalTracer.get().buildSpan("${result.instanceName} - $name").withTag(Tags.SPAN_KIND.key, "test").start()
         GlobalTracer.get().scopeManager().activate(span, false)
     }
 

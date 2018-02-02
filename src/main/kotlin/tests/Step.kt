@@ -1,5 +1,6 @@
 package tests
 
+import io.opentracing.tag.Tags
 import io.opentracing.util.GlobalTracer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -40,7 +41,7 @@ class Step(private val description: String) {
             return try {
                 body()
             } catch (e: Throwable) {
-                it.span().setTag("error", e.toString())
+                it.span().setTag(Tags.ERROR.key, e.toString())
                 throw e
             } finally {
                 logger.info("Done with $type part of the test")

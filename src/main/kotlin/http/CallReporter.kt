@@ -25,14 +25,15 @@ object CallReporter {
                 val parentSpan = GlobalTracer.get().activeSpan()
                 val span = GlobalTracer.get().buildSpan("http call ${endpoint?.service} ${endpoint?.method} ${endpoint?.path}")
                         .withTag("test.step.type", "HTTP_CALL")
+                        .withTag(Tags.SPAN_KIND.key, Tags.SPAN_KIND_CLIENT)
                         .withTag(Tags.HTTP_METHOD.key, endpoint?.method)
                         .withTag(Tags.HTTP_URL.key, endpoint?.path)
-                        .withTag(Tags.COMPONENT.key, "${endpoint?.service}")
-                        .withTag(Tags.SPAN_KIND.key, Tags.SPAN_KIND_CLIENT)
                         .asChildOf(parentSpan).start()
                 GlobalTracer.get().scopeManager().activate(span, true).use {
                     val result = if (args != null) method.invoke(call, *args) else method.invoke(call)
                     it.span().setTag(Tags.HTTP_STATUS.key, (result as? Response<*>)?.code())
+                            .setTag(Tags.PEER_SERVICE.key, "${endpoint?.service}")
+
                     result
                 }
             } else {

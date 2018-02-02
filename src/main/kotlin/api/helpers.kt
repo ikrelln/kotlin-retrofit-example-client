@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-import io.opentracing.contrib.okhttp3.TracingInterceptor;
+import io.opentracing.contrib.okhttp3.TracingInterceptor
 
 
 object ApiService {
