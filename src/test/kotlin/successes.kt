@@ -21,12 +21,19 @@ class SuccessfulTests: TestBase() {
 
     @Test
     fun canGetUserFromGithub() {
-        val response = Step("call github").focus {
+        val userResponse = Step("call github to get user").focus {
             GitHubService.create("https://api.github.com/").getUser("ikrelln").execute()
         }
-        Step("check result").verification {
-            assert(response.code() == 200)
-            assert(response.body()?.login == "ikrelln")
+        Step("intermediate check result").verification {
+            assert(userResponse.code() == 200)
+            assert(userResponse.body()?.login == "ikrelln")
+        }
+        val repoResponse = Step("call github to get user's repos").focus {
+            GitHubService.create("https://api.github.com/").getUserRepos("ikrelln").execute()
+        }
+        Step("check number of repositories of user").verification {
+            assert(repoResponse.code() == 200)
+            assert((repoResponse.body()?.count() ?: 0) > 1)
         }
     }
 
