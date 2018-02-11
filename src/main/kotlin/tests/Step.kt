@@ -4,6 +4,7 @@ import io.opentracing.tag.Tags
 import io.opentracing.util.GlobalTracer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.json.JSONObject
 
 class Step(private val description: String) {
     val logger: Logger = LogManager.getLogger()
@@ -36,12 +37,14 @@ class Step(private val description: String) {
         logger.info("Beginning $type part of the test: $description")
         val parentSpan = GlobalTracer.get().activeSpan()
         val span = GlobalTracer.get().buildSpan(description)
-                .withTag("test.step.type", "$type").asChildOf(parentSpan).start()
+                .withTag(io.ikrelln.tag.Tags.TEST_STEP_TYPE.key, "$type")
+                .asChildOf(parentSpan).start()
         GlobalTracer.get().scopeManager().activate(span, true).use {
             return try {
                 body()
             } catch (e: Throwable) {
-                it.span().setTag(Tags.ERROR.key, e.toString())
+                Tags.ERROR.set(it.span(), true)
+                io.ikrelln.tag.Tags.TEST_STEP_STATUS.set(it.span(), JSONObject().put("exception", e.message))
                 throw e
             } finally {
                 logger.info("Done with $type part of the test")

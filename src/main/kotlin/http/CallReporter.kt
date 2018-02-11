@@ -24,7 +24,7 @@ object CallReporter {
             if (method.name == "execute") {
                 val parentSpan = GlobalTracer.get().activeSpan()
                 val span = GlobalTracer.get().buildSpan("http call ${endpoint?.service} ${endpoint?.method} ${endpoint?.path}")
-                        .withTag("test.step.type", "HTTP_CALL")
+                        .withTag(io.ikrelln.tag.Tags.TEST_STEP_TYPE.key, "HTTP_CALL")
                         .withTag(Tags.SPAN_KIND.key, Tags.SPAN_KIND_CLIENT)
                         .withTag(Tags.HTTP_METHOD.key, endpoint?.method)
                         .withTag(Tags.HTTP_URL.key, endpoint?.path)

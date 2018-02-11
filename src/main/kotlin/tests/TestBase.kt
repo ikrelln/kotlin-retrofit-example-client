@@ -11,10 +11,13 @@ import org.testng.annotations.Listeners
 import brave.Tracing
 import brave.context.log4j2.ThreadContextCurrentTraceContext
 import brave.opentracing.BraveTracer
+import io.ikrelln.TestTracer
 import io.opentracing.tag.Tags
 import io.opentracing.util.GlobalTracer
+import org.testng.annotations.AfterClass
 import zipkin2.reporter.AsyncReporter
 import zipkin2.reporter.okhttp3.OkHttpSender
+import java.lang.Thread.sleep
 
 
 @Listeners(TestListener::class)
@@ -41,6 +44,16 @@ open class TestBase {
                 }
             }
         })
+    }
+
+    @AfterClass(alwaysRun = true)
+    fun classTearDown() {
+        if (GlobalTracer.isRegistered()) {
+            (0..5).forEach({
+                sleep(1000)
+                println("sleep")
+            })
+        }
     }
 
 }
@@ -82,16 +95,16 @@ class TestListener: ITestListener {
     private fun printTestResults(result: ITestResult) {
         val span = GlobalTracer.get().activeSpan()
         val status = when(result.status) {
-            ITestResult.SUCCESS -> "SUCCESS"
+            ITestResult.SUCCESS -> io.ikrelln.tag.Tags.TEST_RESULT_SUCCESS
             ITestResult.FAILURE -> {
-                span.setTag(Tags.ERROR.key, "test failed")
-                "FAILURE"
+                Tags.ERROR.set(span, true)
+                io.ikrelln.tag.Tags.TEST_RESULT_FAILURE
             }
-            ITestResult.SKIP -> "SKIP"
+            ITestResult.SKIP -> io.ikrelln.tag.Tags.TEST_RESULT_SKIPPED
             else -> "UNKNOWN"
         }
 
-        span.setTag("test.result", status)
+        io.ikrelln.tag.Tags.TEST_RESULT.set(span, status)
         span.finish()
         GlobalTracer.get().scopeManager().active().close()
 
@@ -116,7 +129,8 @@ class TestListener: ITestListener {
         logger.info("Starting test ${result.instanceName}.${result.name}")
 
         val name = "[A-Z\\d]".toRegex().replace(result.name, { " ${it.value}" })
-        val span= GlobalTracer.get().buildSpan("${result.instanceName} - $name").withTag(Tags.SPAN_KIND.key, "test").start()
+        val span = TestTracer.buildTestSpan(GlobalTracer.get(), "kotlin-retrofit-example", result.instanceName, name, null)
+                .start()
         GlobalTracer.get().scopeManager().activate(span, false)
     }
 

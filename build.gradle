@@ -31,14 +31,17 @@ dependencies {
     compile "com.squareup.retrofit2:converter-gson:2.3.0"
 
     compile "io.zipkin.brave:brave:4.14.1"
-    compile "io.zipkin.brave:brave-instrumentation-okhttp3:4.14.1"
-    compile "io.zipkin.brave:brave-context-log4j2:4.14.2"
     compile "io.zipkin.reporter2:zipkin-sender-okhttp3:2.3.1"
     compile "io.zipkin.reporter2:zipkin-reporter:2.3.1"
     compile "io.opentracing:opentracing-api:0.31.0"
     compile "io.opentracing:opentracing-util:0.31.0"
     compile("io.opentracing.brave:brave-opentracing:0.26.0") { transitive = false }
+
+    compile "io.zipkin.brave:brave-instrumentation-okhttp3:4.14.1"
+    compile "io.zipkin.brave:brave-context-log4j2:4.14.2"
     compile "io.opentracing.contrib:opentracing-okhttp3:0.1.0"
+
+    compile "io.ikrelln:ikrelln-opentracing-api:0.1.0"
 }
 
 compileKotlin {
