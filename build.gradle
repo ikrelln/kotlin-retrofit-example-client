@@ -32,7 +32,7 @@ dependencies {
 
     compile "io.zipkin.brave:brave:4.14.1"
     compile "io.zipkin.reporter2:zipkin-sender-okhttp3:2.3.1"
-    compile "io.zipkin.reporter2:zipkin-reporter:2.3.1"
+    compile "io.zipkin.reporter2:zipkin-reporter:2.7.10"
     compile "io.opentracing:opentracing-api:0.31.0"
     compile "io.opentracing:opentracing-util:0.31.0"
     compile("io.opentracing.brave:brave-opentracing:0.26.0") { transitive = false }
