@@ -37,7 +37,7 @@ dependencies {
     compile "io.opentracing:opentracing-util:0.31.0"
     compile("io.opentracing.brave:brave-opentracing:0.26.0") { transitive = false }
 
-    compile "io.zipkin.brave:brave-instrumentation-okhttp3:4.14.1"
+    compile "io.zipkin.brave:brave-instrumentation-okhttp3:5.5.0"
     compile "io.zipkin.brave:brave-context-log4j2:4.14.2"
     compile "io.opentracing.contrib:opentracing-okhttp3:0.1.0"
 
